@@ -4,7 +4,7 @@ import PackageDescription
 let package = Package(
     name: "GKPhotoBrowser",
     platforms: [
-        .iOS(.v12) // 和原库最低支持版本一致，可根据项目调整
+        .iOS(.v12)
     ],
     products: [
         .library(name: "GKPhotoBrowserCore", targets: ["GKPhotoBrowserCore"]),
@@ -13,24 +13,26 @@ let package = Package(
         .library(name: "GKPhotoBrowser-AVPlayer", targets: ["GKPhotoBrowser-AVPlayer"])
     ],
     dependencies: [
-        // Kingfisher 依赖，版本范围可根据项目调整
         .package(url: "https://github.com/onevcat/Kingfisher.git", from: "7.0.0"),
-        // SDWebImage 依赖
         .package(url: "https://github.com/SDWebImage/SDWebImage.git", from: "5.8.0")
     ],
     targets: [
-        // 核心模块，对应 pod 'GKPhotoBrowser/Core'
+        // 核心模块：基础浏览功能，无第三方依赖
         .target(
             name: "GKPhotoBrowserCore",
             path: "GKPhotoBrowser/Core",
             publicHeadersPath: ".",
             cSettings: [
-                .headerSearchPath("."),
-                .define("GKPhotoBrowser_Core", to: "1")
+                .headerSearchPath(".")
+            ],
+            linkerSettings: [
+                .linkedFramework("UIKit"),
+                .linkedFramework("Foundation"),
+                .linkedFramework("Photos")
             ]
         ),
         
-        // Kingfisher 适配模块，对应 pod 'GKPhotoBrowser/KF'
+        // Kingfisher 图片加载适配
         .target(
             name: "GKPhotoBrowser-KF",
             dependencies: [
@@ -44,7 +46,7 @@ let package = Package(
             ]
         ),
         
-        // SDWebImage 适配模块，对应 pod 'GKPhotoBrowser/SD'
+        // SDWebImage 图片加载适配
         .target(
             name: "GKPhotoBrowser-SD",
             dependencies: [
@@ -58,7 +60,7 @@ let package = Package(
             ]
         ),
         
-        // AVPlayer 视频模块，对应 pod 'GKPhotoBrowser/AVPlayer'
+        // AVPlayer 视频播放适配
         .target(
             name: "GKPhotoBrowser-AVPlayer",
             dependencies: ["GKPhotoBrowserCore"],
@@ -68,8 +70,7 @@ let package = Package(
                 .headerSearchPath("../Core")
             ],
             linkerSettings: [
-                .linkedFramework("AVFoundation"),
-                .linkedFramework("UIKit")
+                .linkedFramework("AVFoundation")
             ]
         )
     ]
